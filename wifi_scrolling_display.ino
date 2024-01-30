@@ -2,12 +2,14 @@
 #include <ESP8266WebServer.h>
 #include <LiquidCrystal_I2C.h>
 
-const char* ssid = "YOUR SSID";  // Wifi Credentials
+const char* ssid = "Your SSID";  // Wifi Credentials
 const char* pass = "Password";
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Connect I2C Display SCL & SDA with D1 and D2
 
 ESP8266WebServer server(80);  // assigning the port for the server (port 80 for http)
+
+String message;
 
 const int LAN_status_LED = LED_BUILTIN;
 void show_Data();
@@ -39,7 +41,6 @@ void setup() {
   lcd.print(WiFi.localIP());  // view IP in I2C Display
   delay(5000);
   lcd.clear();
-  lcd.setCursor(0, 0);
   server.on("/", HTTP_GET, get_data);
   server.on("/ReadData", HTTP_POST, show_Data);
 }
@@ -148,12 +149,15 @@ void get_data() {
 }
 
 void show_Data() {
-  String message = server.arg("plain");
-  lcd.setCursor(0, 0);
-  lcd.print(message);
-  for (int i = 0; i < 16 + message.length(); i++) {
-    lcd.scrollDisplayRight();
-    delay(300);
+  message = server.arg("plain");
+  lcd.clear();
+  for (int i = 0; i <= 16 + message.length(); i++) {
+    lcd.setCursor(0, 0);
+
+    String displayMessage = message.substring(i, i + 16);
+    lcd.print(displayMessage);
+    delay(350);
+    lcd.clear();
   }
 }
 
